@@ -1,0 +1,7 @@
+Dear <%= @order.name %>
+
+You buy next products:
+
+<%= render @order.line_items -%>
+
+When your items will shipped, we will inform you again.

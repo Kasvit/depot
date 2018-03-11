@@ -7,13 +7,43 @@
 	<% @products.each do |product| %>
 	<% cache ['entry', product] do %>
 	  <div class="entry">
-	    <%= image_tag(product.image_url) %>
+	    <%= link_to image_tag(product.image_url), line_items_path(product_id: product), method: :post, remote: true %>
 	    <h3><%= product.title %></h3>
 	    <%= sanitize(product.description) %>
 	    <div class="price_line">
-	      <span class="price"><%= price_uk(product) %></span>
+	      <span class="price"><%= currency_to_locale(product.price) %></span>
+	      <%= button_to t('.add_html'), line_items_path(product_id: product), remote: true %>
 	    </div>
+	    <p> <%= pluralize @counter, 'You have been here time' if @counter >= 5 %> </p>
 	  </div>
+	  <% end %>
 	<% end %>
+	<% if session[:user_id] %>
+		<table class="needed" ">
+			<thead>Ще треба доробити:</thead>
+				<tr>
+			<td>increment decrement buttons in cart</td>
+			<th>ch 11, _line_items.html.erb</th>
+				</tr>	<tr>
+			<td>payment</td>
+			<th>ch 12, Pt-G-3, order.rb, pay_type.rb, orders/_form.html.rb</th>
+				</tr>	<tr>
+			<td>atom</td>
+			<th>doesnt work curl --silent ...</th>
+				</tr>	<tr>
+			<td>who_bought </td>
+			<th>add format xml-, json in products_controller.rb, views/products/... </th>
+				</tr> <tr>
+			<td>Pt-G-4 </td>
+			<th>upgrade payment types (new model, migration, etc) </th>
+				</tr><tr>
+			<td>Pt-H-3 </td>
+			<th>UserStoriesTest#test_buying_a_product </th>
+				</tr>
+				<tr>
+			<td>Pt-I-1 </td>
+			<th>:current_password in user_controller dont work (_form shows notice) </th>
+				</tr>
+			</table>
+			<% end %>
 	<% end %>
-<% end %>

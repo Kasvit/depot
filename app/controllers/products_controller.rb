@@ -1,5 +1,6 @@
 class ProductsController < ApplicationController
-  before_action :set_product, only: [:show, :edit, :update, :destroy]
+  before_action :set_product, only: [:show, :edit, :update, :destroy, :who_bought]
+  rescue_from ActiveRecord::RecordNotFound, with: :product
 
   # GET /products
   # GET /products.json
@@ -10,6 +11,14 @@ class ProductsController < ApplicationController
   # GET /products/1
   # GET /products/1.json
   def show
+    @product = Product.find(params[:id])
+  respond_to do |format|
+    format.html # show.html.erb
+    format.json { render :json => @product }
+  end
+  rescue ActiveRecord::RecordNotFound
+      logger.error "Attempt to access product #{ params[ :id ]}" 
+      redirect_to products_url, :notice => 'Invalid product'
   end
 
   # GET /products/new
@@ -28,11 +37,14 @@ class ProductsController < ApplicationController
 
     respond_to do |format|
       if @product.save
-        format.html { redirect_to @product, notice: 'Product was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @product }
+        format.html { redirect_to @product,
+          notice: 'Product was successfully created.' }
+        format.json { render action: 'show', status: :created,
+          location: @product }
       else
         format.html { render action: 'new' }
-        format.json { render json: @product.errors, status: :unprocessable_entity }
+        format.json { render json: @product.errors,
+          status: :unprocessable_entity }
       end
     end
   end
@@ -61,6 +73,19 @@ class ProductsController < ApplicationController
     end
   end
 
+  def who_bought
+    @product = Product.find(params[:id])
+    @latest_order = @product.orders.order(:updated_at).last
+    if stale?(@latest_order)
+      respond_to do |format|
+        format.atom
+        format.html
+        format.xml { render :xml => @product.to_xml(:include => :orders) }
+        format.json {render :json => @product.to_json(:include => :orders)}
+      end
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_product
@@ -70,5 +95,10 @@ class ProductsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def product_params
       params.require(:product).permit(:title, :description, :image_url, :price)
+    end
+
+    def invalid_product
+      logger.error "Attempt to access invalid line item #{params[:id]}" 
+      redirect_to products_url, notice: 'Invalid product'
     end
 end

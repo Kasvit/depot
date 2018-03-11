@@ -18,11 +18,11 @@ class ProductTest < ActiveSupport::TestCase
   end
 
   #test "product must have title length minimum 4 characters" do
-  #	product = Product.new(title: "book", description: "decr", image_url: "zzz.jpg", price: 1)
-  #	assert product.invalid?
+  #	product = Product.new(title: "book", description: "descr", image_url: "zzz.jpg", price: 1)
+  #	assert product.valid?
   #	assert_equal ["must have at least 4 characters"], product.errors[:title]
-  #	product.errors[:title]
   #end
+
   test "product is not valid without a unique title - i18n" do
     product = Product.new(title:       products(:ruby).title,
                           description: "yyy", 
@@ -32,6 +32,16 @@ class ProductTest < ActiveSupport::TestCase
     assert product.invalid?
     assert_equal [I18n.translate('errors.messages.taken')],
                  product.errors[:title]
+  end
+
+  test "product is not valid without a unique title" do
+    product = Product.new(title:       products(:ruby).title,
+                          description: "yyy", 
+                          price:       1, 
+                          image_url:   "fred.gif")
+
+    assert product.invalid?
+    assert_equal ["has already been taken"], product.errors[:title]
   end
 
   test "Ціна товару має бути позитивною" do
@@ -58,11 +68,15 @@ class ProductTest < ActiveSupport::TestCase
     ok = %w{ fred.gif fred.jpg fred.png FRED.JPG FRED.Jpg
              http://a.b.c/x/y/z/fred.gif }
     bad = %w{ fred.doc fred.gif/more fred.gif.more }
+    
     ok.each do |name|
       assert new_product(name).valid?, "#{name} should be valid"
     end
+
     bad.each do |name|
       assert new_product(name).invalid?, "#{name} shouldn't be valid"
     end
   end
+
+
 end

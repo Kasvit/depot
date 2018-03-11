@@ -3,6 +3,9 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 .store {
+  .needed {
+    border: 3px dotted #FF0007FF;
+  }
   h1 {
     margin: 10;
     padding-bottom: 0.5em;
@@ -38,6 +41,10 @@
       margin-left: 100px;
       margin-top: 0.5em; 
       margin-bottom: 0.8em; 
+
+      form, div {
+        display: inline;
+      }
     }
 
     .price {
